@@ -1,5 +1,5 @@
 scenarios:
-  - id: 
+  - id: it's just an example
     steps: 
     - id: send a request to example endpoint
       resource: http-client
