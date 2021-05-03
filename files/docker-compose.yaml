@@ -1,0 +1,9 @@
+version: '3.4'
+services:
+    tomato:
+        image: quay.io/tomatool/tomato:v1.4.2
+        environment:
+            APP_BASE_URL: https://alileza.me
+        volumes:
+            - ./tomato.yaml:/config.yml
+            - ./features:/features

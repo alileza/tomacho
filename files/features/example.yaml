@@ -1,0 +1,16 @@
+scenarios:
+  - id: 
+    steps: 
+    - id: send a request to example endpoint
+      resource: http-client
+      action: send
+      arguments: 
+        method: GET
+        url: /example
+
+    - id: check response 
+      resource: http-client
+      action: expect
+      arguments: 
+        code: 200
+        body: '{"hello":"world"}'
