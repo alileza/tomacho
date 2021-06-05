@@ -56,7 +56,7 @@ var InitCommand *cli.Command = &cli.Command{
 		}
 
 		{
-			f, err := pkger.Open("/files/features/example.feature")
+			f, err := pkger.Open("/files/features/example.yaml")
 			if err != nil {
 				return fmt.Errorf("Failed to open file: %w", err)
 			}
@@ -67,11 +67,11 @@ var InitCommand *cli.Command = &cli.Command{
 				return fmt.Errorf("Failed to read content: %w", err)
 			}
 
-			if err := os.WriteFile(InitInputs.Directory+"/features/example.feature", b, 0644); err != nil {
+			if err := os.WriteFile(InitInputs.Directory+"/features/example.yaml", b, 0644); err != nil {
 				return fmt.Errorf("Failed to write file: %w", err)
 			}
 
-			fmt.Fprintf(os.Stdout, colors.Green("%s created.\n"), InitInputs.Directory+"/features/example.feature")
+			fmt.Fprintf(os.Stdout, colors.Green("%s created.\n"), InitInputs.Directory+"/features/example.yaml")
 		}
 
 		return nil

@@ -1,15 +1,22 @@
 scenarios:
-  - id: 
+  - id: check if alileza.me is up
     steps: 
-    - id: send a request to example endpoint
-      resource: http-client
+    - resource: httpclient
       action: send
       arguments: 
         method: GET
         url: /example
+        headers:
+          Content-Type: application/json
+          Accept: application/json
 
-    - id: check response 
-      resource: http-client
+    - resource: httpclient
+      action: expect
+      arguments: 
+        code: 200
+        body: '{"hello":"world"}'
+
+    - resource: postgres
       action: expect
       arguments: 
         code: 200

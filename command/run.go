@@ -3,11 +3,11 @@ package command
 import (
 	"fmt"
 
-	"github.com/cucumber/godog/colors"
 	"github.com/urfave/cli/v2"
 
 	"tomato/config"
 	"tomato/feature"
+	"tomato/log"
 	"tomato/resource"
 	"tomato/resource/httpclient"
 )
@@ -34,16 +34,15 @@ var RunCommand *cli.Command = &cli.Command{
 		if err != nil {
 			return fmt.Errorf("Failed to retrieve config: %w", err)
 		}
-
 		resources := make(map[string]resource.Resource)
 		for _, r := range conf.Resources {
 			switch r.Type {
 			case "httpclient":
-				// fmt.Printf("[%s] Initiating\n", r.Name)
 				resources[r.Name] = httpclient.NewHTTPClient(r.Options)
 				if err := resources[r.Name].Status(); err != nil {
 					return fmt.Errorf("resource %s failed, %v", r.Name, r)
 				}
+				log.Info(r.Name, " initiated")
 			default:
 				return fmt.Errorf("resource %s not found", r.Type)
 			}
@@ -54,18 +53,24 @@ var RunCommand *cli.Command = &cli.Command{
 			if err != nil {
 				return err
 			}
-			c.Context = resource.SetExecID(c.Context, f)
+
 			for _, sc := range ff.Scenarios {
-				if err := resources[sc.Resource].Exec(c.Context, sc.Action, sc.Arguments); err != nil {
-					fmt.Printf("[%s] %s\n", colors.Red(sc.ID), err)
-					return fmt.Errorf("execution stopped due failed step")
-				} else {
-					fmt.Printf("[%s] Good\n", colors.Green(sc.ID))
+				c.Context = resource.SetExecID(c.Context, sc.ID)
+				for _, st := range sc.Steps {
+					if r, exist := resources[st.Resource]; exist {
+						r.Exec(c.Context, st.Action, st.Arguments)
+					} else {
+						err = fmt.Errorf("unregistered resource of: %s", st.Resource)
+					}
+
+					log.PrintStep(st, err)
+					if err != nil {
+						return fmt.Errorf("execution stopped due failed step")
+					}
 				}
 			}
 			return nil
 		}
-
 		return nil
 	},
 }

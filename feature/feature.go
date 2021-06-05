@@ -5,6 +5,7 @@ import (
 	"os"
 	"tomato/resource"
 
+	"github.com/cucumber/godog/colors"
 	"gopkg.in/yaml.v2"
 )
 
@@ -15,10 +16,19 @@ type Feature struct {
 
 // Scenarios
 type Scenario struct {
-	ID        string             `yaml:"id"`
+	ID    string `yaml:"id"`
+	Steps []Step `yaml:"steps"`
+}
+
+// Step
+type Step struct {
 	Resource  string             `yaml:"resource"`
 	Action    string             `yaml:"action"`
 	Arguments resource.Arguments `yaml:"arguments"`
+}
+
+func (s Step) String() string {
+	return fmt.Sprintf("%s: %s\t=> %v", colors.Bold(colors.White)(s.Resource), s.Action, s.Arguments)
 }
 
 func Retrieve(path string) (*Feature, error) {

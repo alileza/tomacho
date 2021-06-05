@@ -1,7 +1,7 @@
 features_path:
   - features/
 resources:
-    - name: httpclient
+    - name: http-client
       type: httpclient
       options:
         base_url: https://alileza.me

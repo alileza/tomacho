@@ -1,9 +1,9 @@
 package main
 
 import (
-	"fmt"
 	"os"
 	"tomato/command"
+	"tomato/log"
 
 	"github.com/urfave/cli/v2"
 )
@@ -19,7 +19,7 @@ func main() {
 	}
 	app.Version = "0.0.1"
 	if err := app.Run(os.Args); err != nil {
-		fmt.Fprintf(os.Stdout, "ERR: %v\n", err)
+		log.Error(err)
 		os.Exit(1)
 	}
 }

@@ -10,7 +10,7 @@ import (
 
 type HTTPClient struct {
 	// shared storages
-	storage *storage.Storage
+	Storage *storage.Storage
 
 	BaseURL string
 	Client  *http.Client
@@ -23,7 +23,7 @@ func NewHTTPClient(options resource.Options) *HTTPClient {
 
 	h.Client = &http.Client{}
 	h.headers = make(http.Header)
-	h.storage = storage.New()
+	h.Storage = storage.New()
 
 	if url, ok := options["base_url"]; ok {
 		h.BaseURL = url
@@ -52,14 +52,12 @@ func (h *HTTPClient) Status() error {
 
 func (h *HTTPClient) Exec(ctx context.Context, command string, args resource.Arguments) error {
 	for key, value := range args {
-		h.storage.Set(resource.GetExecID(ctx), key, value)
+		h.Storage.Set(resource.GetExecID(ctx), key, value)
 	}
 
 	switch command {
 	case "send":
 		return h.Send(ctx)
-	case "set-header":
-		return h.SetHeader(ctx)
 	case "expect":
 		return h.Expect(ctx)
 	default:
