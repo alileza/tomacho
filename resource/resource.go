@@ -14,6 +14,7 @@ func (a Arguments) Get(key string) string {
 type Resource interface {
 	Status() error
 	Exec(ctx context.Context, command string, arguments Arguments) error
+	DumpStorage() ([]byte, error)
 }
 
 func GetExecID(ctx context.Context) string {

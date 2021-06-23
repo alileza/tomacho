@@ -7,7 +7,7 @@ import (
 )
 
 type Storage struct {
-	db map[string]string
+	DB map[string]string
 }
 
 func New() *Storage {
@@ -15,12 +15,12 @@ func New() *Storage {
 }
 
 func (s *Storage) Get(id, key string) (string, bool) {
-	a, b := s.db[id+key]
+	a, b := s.DB[id+"#"+key]
 	return a, b
 }
 
 func (s *Storage) Set(id, key string, value string) {
-	s.db[id+key] = value
+	s.DB[id+"#"+key] = value
 }
 
 func (s *Storage) Print() error {

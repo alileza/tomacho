@@ -6,6 +6,14 @@ import (
 	"net/http"
 	"tomato/resource"
 	"tomato/storage"
+
+	"gopkg.in/yaml.v2"
+)
+
+const (
+	CommandSend      = "send"
+	CommandSetHeader = "set-header"
+	CommandExpect    = "expect"
 )
 
 type HTTPClient struct {
@@ -39,12 +47,12 @@ func (h *HTTPClient) Status() error {
 
 	resp, err := h.Client.Get(h.BaseURL)
 	if err != nil {
-		return fmt.Errorf("Failed to send GET request to %s: %w", h.BaseURL, err)
+		return fmt.Errorf("failed to send GET request to %s: %w", h.BaseURL, err)
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode < 200 || resp.StatusCode > 299 {
-		return fmt.Errorf("Unexpected status code from %s: status_code=%d", h.BaseURL, resp.StatusCode)
+		return fmt.Errorf("unexpected status code from %s: status_code=%d", h.BaseURL, resp.StatusCode)
 	}
 
 	return nil
@@ -56,13 +64,17 @@ func (h *HTTPClient) Exec(ctx context.Context, command string, args resource.Arg
 	}
 
 	switch command {
-	case "send":
+	case CommandSend:
 		return h.Send(ctx)
-	case "set-header":
+	case CommandSetHeader:
 		return h.SetHeader(ctx)
-	case "expect":
+	case CommandExpect:
 		return h.Expect(ctx)
 	default:
-		return fmt.Errorf("Unexpected command: %s", command)
+		return fmt.Errorf("unexpected command: %s", command)
 	}
+}
+
+func (h *HTTPClient) DumpStorage() ([]byte, error) {
+	return yaml.Marshal(h.storage)
 }

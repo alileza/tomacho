@@ -14,6 +14,7 @@ import (
 
 var RunInputs struct {
 	ConfigPath string
+	Verbosity  string
 }
 
 var RunCommand *cli.Command = &cli.Command{
@@ -28,11 +29,18 @@ var RunCommand *cli.Command = &cli.Command{
 			Destination: &RunInputs.ConfigPath,
 			Value:       "tomato.yaml",
 		},
+		&cli.StringFlag{
+			Name:        "verbosity",
+			Aliases:     []string{"v"},
+			Usage:       "",
+			Destination: &RunInputs.Verbosity,
+			Value:       "info",
+		},
 	},
 	Action: func(c *cli.Context) error {
 		conf, err := config.Retrieve(RunInputs.ConfigPath)
 		if err != nil {
-			return fmt.Errorf("Failed to retrieve config: %w", err)
+			return fmt.Errorf("failed to retrieve config: %w", err)
 		}
 
 		resources := make(map[string]resource.Resource)
@@ -54,13 +62,19 @@ var RunCommand *cli.Command = &cli.Command{
 			if err != nil {
 				return err
 			}
-			c.Context = resource.SetExecID(c.Context, f)
 			for _, sc := range ff.Scenarios {
-				if err := resources[sc.Resource].Exec(c.Context, sc.Action, sc.Arguments); err != nil {
-					fmt.Printf("[%s] %s\n", colors.Red(sc.ID), err)
-					return fmt.Errorf("execution stopped due failed step")
-				} else {
-					fmt.Printf("[%s] Good\n", colors.Green(sc.ID))
+				c.Context = resource.SetExecID(c.Context, sc.ID)
+				for _, st := range sc.Steps {
+					if err := resources[st.Resource].Exec(c.Context, st.Action, st.Arguments); err != nil {
+						fmt.Printf("🔥 %s %s\n", colors.Red(st.ID), err)
+						return fmt.Errorf("execution stopped due failed step")
+					} else {
+						dump, err := resources[st.Resource].DumpStorage()
+						if err != nil {
+							return fmt.Errorf("failed to dump storage: %w", err)
+						}
+						fmt.Printf("✅ %s (%s)\n", colors.Green(st.ID), dump)
+					}
 				}
 			}
 			return nil

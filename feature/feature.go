@@ -15,6 +15,12 @@ type Feature struct {
 
 // Scenarios
 type Scenario struct {
+	ID    string `yaml:"id"`
+	Steps []Step `yaml:"steps"`
+}
+
+// Scenarios
+type Step struct {
 	ID        string             `yaml:"id"`
 	Resource  string             `yaml:"resource"`
 	Action    string             `yaml:"action"`
