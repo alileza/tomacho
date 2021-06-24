@@ -7,6 +7,7 @@ import (
 
 	"github.com/cucumber/godog/colors"
 	"github.com/markbates/pkger"
+	"github.com/sirupsen/logrus"
 	"github.com/urfave/cli/v2"
 )
 
@@ -29,6 +30,9 @@ var InitCommand *cli.Command = &cli.Command{
 		},
 	},
 	Action: func(c *cli.Context) error {
+		log := logrus.New()
+		log.SetFormatter(&logrus.JSONFormatter{})
+
 		if err := os.MkdirAll(InitInputs.Directory, 0755); err != nil {
 			return err
 		}
@@ -39,39 +43,39 @@ var InitCommand *cli.Command = &cli.Command{
 		{
 			f, err := pkger.Open("/files/tomato.yaml")
 			if err != nil {
-				return fmt.Errorf("Failed to open gofile: %w", err)
+				return fmt.Errorf("failed to open gofile: %w", err)
 			}
 			defer f.Close()
 
 			b, err := ioutil.ReadAll(f)
 			if err != nil {
-				return fmt.Errorf("Failed to read content: %w", err)
+				return fmt.Errorf("failed to read content: %w", err)
 			}
 
 			if err := os.WriteFile(InitInputs.Directory+"/tomato.yaml", b, 0644); err != nil {
-				return fmt.Errorf("Failed to write file: %w", err)
+				return fmt.Errorf("failed to write file: %w", err)
 			}
 
-			fmt.Fprintf(os.Stdout, colors.Green("%s created.\n"), InitInputs.Directory+"/tomato.yaml")
+			log.Infof(colors.Green("%s created.\n"), InitInputs.Directory+"/tomato.yaml")
 		}
 
 		{
 			f, err := pkger.Open("/files/features/example.feature")
 			if err != nil {
-				return fmt.Errorf("Failed to open file: %w", err)
+				return fmt.Errorf("failed to open file: %w", err)
 			}
 			defer f.Close()
 
 			b, err := ioutil.ReadAll(f)
 			if err != nil {
-				return fmt.Errorf("Failed to read content: %w", err)
+				return fmt.Errorf("failed to read content: %w", err)
 			}
 
 			if err := os.WriteFile(InitInputs.Directory+"/features/example.feature", b, 0644); err != nil {
-				return fmt.Errorf("Failed to write file: %w", err)
+				return fmt.Errorf("failed to write file: %w", err)
 			}
 
-			fmt.Fprintf(os.Stdout, colors.Green("%s created.\n"), InitInputs.Directory+"/features/example.feature")
+			log.Infof(colors.Green("%s created.\n"), InitInputs.Directory+"/features/example.feature")
 		}
 
 		return nil

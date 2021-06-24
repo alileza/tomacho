@@ -36,6 +36,7 @@ func (h *HTTPClient) Send(ctx context.Context) error {
 
 	body, ok := h.storage.Get(resource.GetExecID(ctx), InputBody)
 	if !ok {
+		log.WithField("resource", "httpclient").Debug("body is not being passed")
 		fmt.Printf("[DEBUG] body is not being passed\n")
 	}
 

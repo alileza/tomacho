@@ -3,7 +3,7 @@ package command
 import (
 	"fmt"
 
-	"github.com/cucumber/godog/colors"
+	"github.com/sirupsen/logrus"
 	"github.com/urfave/cli/v2"
 
 	"tomato/config"
@@ -38,6 +38,9 @@ var RunCommand *cli.Command = &cli.Command{
 		},
 	},
 	Action: func(c *cli.Context) error {
+		log := logrus.New()
+		log.SetFormatter(&logrus.JSONFormatter{})
+
 		conf, err := config.Retrieve(RunInputs.ConfigPath)
 		if err != nil {
 			return fmt.Errorf("failed to retrieve config: %w", err)
@@ -63,19 +66,22 @@ var RunCommand *cli.Command = &cli.Command{
 				return err
 			}
 			for _, sc := range ff.Scenarios {
+				l := log.WithField("scenario", sc.ID)
 				c.Context = resource.SetExecID(c.Context, sc.ID)
 				for _, st := range sc.Steps {
+					l.WithField("step", st.ID)
 					if err := resources[st.Resource].Exec(c.Context, st.Action, st.Arguments); err != nil {
-						fmt.Printf("🔥 %s %s\n", colors.Red(st.ID), err)
+						l.WithError(err)
 						return fmt.Errorf("execution stopped due failed step")
 					} else {
 						dump, err := resources[st.Resource].DumpStorage()
 						if err != nil {
 							return fmt.Errorf("failed to dump storage: %w", err)
 						}
-						fmt.Printf("✅ %s (%s)\n", colors.Green(st.ID), dump)
+						l.WithField("storage", dump)
 					}
 				}
+				l.Info()
 			}
 			return nil
 		}
